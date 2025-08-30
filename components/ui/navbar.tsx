@@ -1,7 +1,20 @@
+'use client';
+
 import Link from "next/link";
 import { Button } from "./button";
+import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
 
 export function Navbar() {
+  const { session } = useAuth();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.push('/');
+  };
+
   return (
     <header className="border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto max-w-6xl px-4 h-14 flex items-center justify-between">
@@ -19,12 +32,21 @@ export function Navbar() {
           </nav>
         </div>
         <div className="flex items-center gap-2">
-          <Button asChild variant="outline">
-            <Link href="/sign-in">Sign in</Link>
-          </Button>
-          <Button asChild>
-            <Link href="/sign-up">Sign up</Link>
-          </Button>
+          {session ? (
+            <>
+              <p className="text-sm text-muted-foreground">{session.user.email}</p>
+              <Button onClick={handleSignOut} variant="outline">Sign out</Button>
+            </>
+          ) : (
+            <>
+              <Button asChild variant="outline">
+                <Link href="/sign-in">Sign in</Link>
+              </Button>
+              <Button asChild>
+                <Link href="/sign-up">Sign up</Link>
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </header>
